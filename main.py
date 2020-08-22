@@ -1,6 +1,8 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
@@ -8,6 +10,21 @@ from sklearn.metrics import f1_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OrdinalEncoder
 
+
+# 用于打印评分的函数
+def print_score(y, predictions):
+    accuracy = accuracy_score(y, predictions)
+    precision = precision_score(y, predictions)
+    recall = recall_score(y, predictions)
+    f1 = f1_score(y, predictions)
+    print('-------------score-------------')
+    print(f'The accuracy is: {accuracy}')
+    print(f'The precision is: {precision}')
+    print(f'The recall is: {recall}')
+    print(f'The f1 is: {f1}')
+    print('-------------------------------')
+
+# 数据预处理
 # 表头
 name = [
     'duration', 'protocol_type', 'service', 'flag', 'src_bytes', 'dst_bytes', 'land', 'wrong_fragment', 'urgent', 'hot',
@@ -39,30 +56,40 @@ x_test = test.drop(columns=['class'])
 y_test = test['class']
 x_data_train, x_data_test, y_data_train, y_data_test = train_test_split(x_data, y_data, test_size=0.3)
 # 选择模型进行训练
-model = DecisionTreeClassifier()
-print('training...')
-model.fit(x_data_train, y_data_train)
 
-# 打分，输出准确率
-# 第一次测试，用data里的30%进行测试
-predictions = model.predict(x_data_test)
-accuracy = accuracy_score(y_data_test, predictions)
-precision = precision_score(y_data_test, predictions)
-recall = recall_score(y_data_test, predictions)
-f1 = f1_score(y_data_test, predictions)
-print('------data based test-------')
-print(f'The accuracy is: {accuracy}')
-print(f'The precision is: {precision}')
-print(f'The recall is: {recall}')
-print(f'The f1 is: {f1}')
-# 第二次测试，用全部的test进行测试
+# 1.决策树模型
+from sklearn.tree import DecisionTreeClassifier
+print('DecisionTree Training...')
+model = DecisionTreeClassifier(splitter='random')
+model.fit(x_data_train, y_data_train)
 predictions = model.predict(x_test)
-accuracy = accuracy_score(y_test, predictions)
-precision = precision_score(y_test, predictions)
-recall = recall_score(y_test, predictions)
-f1 = f1_score(y_test, predictions)
-print('------ final test-------')
-print(f'The accuracy is: {accuracy}')
-print(f'The precision is: {precision}')
-print(f'The recall is: {recall}')
-print(f'The f1 is: {f1}')
+print("#DecisionTree")
+predictions = model.predict(x_test)
+print_score(y_test, predictions)
+
+# 5.线性鉴别分析模型
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+print('Linear Discriminant Analysis Training...')
+model = LinearDiscriminantAnalysis()
+model.fit(x_data_train,y_data_train)
+print("#Linear Discriminant Analysis")
+predictions = model.predict(x_test)
+print_score(y_test, predictions)
+
+# 6.逻辑回归模型
+from sklearn.linear_model import LogisticRegression
+print('Logistic Regression Training...')
+model = LogisticRegression(penalty='l2')
+model.fit(x_data_train, y_data_train)
+print("#Logistic Regression")
+predictions = model.predict(x_test)
+print_score(y_test, predictions)
+
+# 7.GBDT(Gradient Boosting Decision Tree)
+from sklearn.ensemble import GradientBoostingClassifier
+print('GBDT Training...')
+model = GradientBoostingClassifier(n_estimators=200)
+model.fit(x_data_train, y_data_train)
+print("#GBDT")
+predictions = model.predict(x_test)
+print_score(y_test, predictions)

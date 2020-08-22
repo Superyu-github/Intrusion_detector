@@ -11,3 +11,5 @@
 # test['class'].loc[test['class'] != 'normal.'] = 'attack.'
 # data['class'].loc[data['class'] != 'normal.'] = 'attack.'
 # 还没写好
+a = [1,2,3]
+print(a.index(1))
