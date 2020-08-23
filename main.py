@@ -49,12 +49,17 @@ data.iloc[:, -1] = LabelEncoder().fit_transform(data.iloc[:, -1])
 test.iloc[:, -1] = LabelEncoder().fit_transform(test.iloc[:, -1])
 data.iloc[:, 1:4] = OrdinalEncoder().fit_transform(data.iloc[:, 1:4])
 test.iloc[:, 1:4] = OrdinalEncoder().fit_transform(test.iloc[:, 1:4])
-# 划分训练集和测试集,data被划为7：3，7份用来训练，3份用来测试，test全部用来做最终的测试
+# 划分训练集和测试集
 x_data = data.drop(columns=['class'])
 y_data = data['class']
 x_test = test.drop(columns=['class'])
 y_test = test['class']
-x_data_train, x_data_test, y_data_train, y_data_test = train_test_split(x_data, y_data, test_size=0.3)
+# 划分用于训练的数据(只用了x/y_date_train,其他两个舍弃了)，此举用于控制用于训练的数据的数量，因总数据较多，个别模型训练耗时太长，
+# 此时可以调高test_size减少训练时间
+x_data_train, x_data_test, y_data_train, y_data_test = train_test_split(x_data, y_data, test_size=0.1, random_state=1)
+# 将corrected分成两份，一份当作测试集调参，另一份当作“未知数据”用于展示最终效果
+x_test_1, x_test_2, y_test_1, y_test_2 = train_test_split(x_test, y_test, test_size=0.5, random_state=1)
+
 # 选择模型进行训练
 
 # 1.决策树模型
@@ -62,10 +67,10 @@ from sklearn.tree import DecisionTreeClassifier
 print('DecisionTree Training...')
 model = DecisionTreeClassifier(splitter='random')
 model.fit(x_data_train, y_data_train)
-predictions = model.predict(x_test)
+predictions = model.predict(x_test_1)
 print("#DecisionTree")
-predictions = model.predict(x_test)
-print_score(y_test, predictions)
+predictions = model.predict(x_test_1)
+print_score(y_test_1, predictions)
 
 # 5.线性鉴别分析模型
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -73,17 +78,17 @@ print('Linear Discriminant Analysis Training...')
 model = LinearDiscriminantAnalysis()
 model.fit(x_data_train,y_data_train)
 print("#Linear Discriminant Analysis")
-predictions = model.predict(x_test)
-print_score(y_test, predictions)
+predictions = model.predict(x_test_1)
+print_score(y_test_1, predictions)
 
 # 6.逻辑回归模型
 from sklearn.linear_model import LogisticRegression
 print('Logistic Regression Training...')
-model = LogisticRegression(penalty='l2')
+model = LogisticRegression(penalty='l2', max_iter=3000)
 model.fit(x_data_train, y_data_train)
 print("#Logistic Regression")
-predictions = model.predict(x_test)
-print_score(y_test, predictions)
+predictions = model.predict(x_test_1)
+print_score(y_test_1, predictions)
 
 # 7.GBDT(Gradient Boosting Decision Tree)
 from sklearn.ensemble import GradientBoostingClassifier
@@ -91,5 +96,5 @@ print('GBDT Training...')
 model = GradientBoostingClassifier(n_estimators=200)
 model.fit(x_data_train, y_data_train)
 print("#GBDT")
-predictions = model.predict(x_test)
-print_score(y_test, predictions)
+predictions = model.predict(x_test_1)
+print_score(y_test_1, predictions)
