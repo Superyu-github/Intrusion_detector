@@ -25,6 +25,16 @@ def print_score(y, predictions):
     print(f'The f1 is: {f1}')
     print('-------------------------------')
 
+
+# 用于训练和保存模型的函数
+def fit_model(model, name ):
+    print(f'{name} Training...')
+    model.fit(x_data_train, y_data_train)
+    joblib.dump(model, f'save/{name}')
+    print(f"#{name}")
+    predictions = model.predict(x_test_1)
+    print_score(y_test_1, predictions)
+
 # 数据预处理
 # 表头
 name = [
@@ -60,167 +70,97 @@ y_test = test['class']
 x_data_train, x_data_test, y_data_train, y_data_test = train_test_split(x_data, y_data, test_size=0.1, random_state=1)
 # 将corrected分成两份，一份当作测试集调参，另一份当作“未知数据”用于展示最终效果
 x_test_1, x_test_2, y_test_1, y_test_2 = train_test_split(x_test, y_test, test_size=0.5, random_state=1)
+# 保存数据
+joblib.dump(x_data_train, 'save/x_data_train')
+joblib.dump(x_data_test, 'save/x_data_test')
+joblib.dump(y_data_train, 'save/y_data_train')
+joblib.dump(y_data_test, 'save/y_data_test')
+joblib.dump(x_test_1, 'save/x_test_1')
+joblib.dump(x_test_2, 'save/x_test_2')
+joblib.dump(y_test_1, 'save/y_test_1')
+joblib.dump(y_test_2, 'save/y_test_2')
+
 
 # 选择模型进行训练
 
 # 1.决策树模型
 from sklearn.tree import DecisionTreeClassifier
-print('DecisionTree Training...')
 model = DecisionTreeClassifier(max_depth=40, min_samples_split=5)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/DecisionTreeClassifier')
-# model = joblib.load('save/DecisionTreeClassifier')
-predictions = model.predict(x_test_1)
-print("#DecisionTree")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
+fit_model(model, 'DecisionTreeClassifier')
 
 # 2.线性支持向量机模型
 from sklearn.svm import LinearSVC
-print('SVM Classifier Training...')
 model = LinearSVC(random_state=10)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/LinearSVC')
-predictions = model.predict(x_test_1)
-print("#SVM Classifier")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
+fit_model(model, 'LinearSVC')
 
 # 3.随机森林模型
 from sklearn.ensemble import RandomForestClassifier
-print('RandomForest Training...')
-model = RandomForestClassifier(random_state=10, n_estimators=106, max_depth=31)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/RandomForestClassifier')
-predictions = model.predict(x_test_1)
-print("#RandomForest")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
+model = RandomForestClassifier(random_state=10, n_estimators=106, max_depth=31, n_jobs=-1)
+fit_model(model, 'RandomForestClassifier')
 
-# # 4.1 高斯朴素贝叶斯模型
-# from sklearn.naive_bayes import GaussianNB
-# print('Gaussian Naive Bayes Classifier Training...')
-# model = GaussianNB()
-# model.fit(x_data_train, y_data_train)
-# joblib.dump(model, 'save/GaussianNB')
-# predictions = model.predict(x_test_1)
-# print("#Gaussian Naive Bayes")
-# predictions = model.predict(x_test_1)
-# print_score(y_test_1, predictions)
-# #
-# 4.2 多项式朴素贝叶斯模型
-from sklearn.naive_bayes import MultinomialNB
-print('Multinomial Naive Bayes Classifier Training...')
-model = MultinomialNB()
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/MultinomialNB')
-predictions = model.predict(x_test_1)
-print("#Multinomial Naive Bayes")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
-
-# 5.线性鉴别分析模型
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-print('Linear Discriminant Analysis Training...')
-model = LinearDiscriminantAnalysis()
-model.fit(x_data_train,y_data_train)
-joblib.dump(model, 'save/LinearDiscriminantAnalysis')
-print("#Linear Discriminant Analysis")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
-
-# 6.逻辑回归模型
-from sklearn.linear_model import LogisticRegression
-print('Logistic Regression Training...')
-model = LogisticRegression(max_iter=1200)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/LogisticRegression')
-print("#Logistic Regression")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
-
-# 7.GBDT(Gradient Boosting Decision Tree)
-from sklearn.ensemble import GradientBoostingClassifier
-print('GBDT Training...')
-model = GradientBoostingClassifier(learning_rate=0.01, max_depth=15, min_samples_leaf=80)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/GradientBoostingClassifier')
-print("#GBDT")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
-
-# 8.KNeighborsClassifier模型
-print('KNeighborsClassifier Training...')
-from sklearn.neighbors import KNeighborsClassifier
-model = KNeighborsClassifier(leaf_size=27,n_neighbors=4)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/KNeighborsClassifier')
-print("#KNeighborsClassifier")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
-
-# 9.AdaBoost模型
-print("AdaBoost Classifier Training...")
-from sklearn.ensemble import  AdaBoostClassifier
-model = AdaBoostClassifier(n_estimators=16)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/AdaBoostClassifier')
-print("#AdaBoost")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
-
-# 10.高斯朴素贝叶斯模型 模型
-print("Gaussian Naive Bayes Classifier Training...")
+# 4.高斯朴素贝叶斯模型
 from sklearn.naive_bayes import GaussianNB
 model = GaussianNB()
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/GaussianNB')
-print("#Gaussian Naive Bayes")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
+fit_model(model, 'GaussianNB')
 
-# 11.Quadratic Discriminant Analysis
-print("QDA Training")
+# 5.多项式朴素贝叶斯模型
+from sklearn.naive_bayes import MultinomialNB
+model = MultinomialNB()
+fit_model(model, 'MultinomialNB')
+
+# 6.线性鉴别分析模型
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+model = LinearDiscriminantAnalysis()
+fit_model(model, 'LinearDiscriminantAnalysis')
+
+# 7.Quadratic Discriminant Analysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 model = QuadraticDiscriminantAnalysis(priors=1)
-model.fit(x_data_train, y_data_train)
-joblib.dump(model, 'save/QuadraticDiscriminantAnalysis')
-print("#Quadratic Discriminant Analysis")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
+fit_model(model, 'QuadraticDiscriminantAnalysis')
+
+# 8.逻辑回归模型
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression(max_iter=1200, n_jobs=-1)
+fit_model(model, 'LogisticRegression')
+
+# 9.GBDT(Gradient Boosting Decision Tree)
+from sklearn.ensemble import GradientBoostingClassifier
+model = GradientBoostingClassifier(learning_rate=0.01, max_depth=15, min_samples_leaf=80)
+fit_model(model, 'GradientBoostingClassifier')
+
+# 10.KNeighborsClassifier模型
+from sklearn.neighbors import KNeighborsClassifier
+model = KNeighborsClassifier(leaf_size=27, n_neighbors=4, n_jobs=-1)
+fit_model(model, 'KNeighborsClassifier')
+
+# 11.AdaBoost模型
+from sklearn.ensemble import AdaBoostClassifier
+model = AdaBoostClassifier(n_estimators=16)
+fit_model(model, 'AdaBoostClassifier')
 
 # 12.xgboost模型
 from xgboost import XGBClassifier
-print('xgboost Training...')
 model = XGBClassifier(max_depth=3, subsample=0.8, colsample_bytree=0.8)
-model.fit(x_data_train, y_data_train)
-predictions = model.predict(x_test_1)
-joblib.dump(model, 'save/XGBClassifier')
-print("#xgboost")
-predictions = model.predict(x_test_1)
-print_score(y_test_1, predictions)
+fit_model(model, 'XGBClassifier')
 
-# # 12.voting_classify
-# from sklearn.ensemble import GradientBoostingClassifier, VotingClassifier, RandomForestClassifier
-# import xgboost
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.naive_bayes import GaussianNB
-# clf1 = GradientBoostingClassifier(n_estimators=200)
-# clf2 = RandomForestClassifier(random_state=10, n_estimators=106, max_depth=31)
-# # clf3 = LogisticRegression(random_state=1)
-# clf4 = GaussianNB()
-# # clf5 = xgboost.XGBClassifier()
-# model = VotingClassifier(estimators=[
-#     # ('gbdt',clf1),
-#     ('rf',clf2),
-#     # ('lr',clf3),
-#     ('nb',clf4),
-#     # ('xgboost',clf5),
-#     ],
-#     voting='soft')
-# model.fit(x_data_train, y_data_train)
-# joblib.dump(model, 'save/VotingClassifier')
-# predictions = model.predict(x_test_1)
-# print("#voting_classify")
-# predictions = model.predict(x_test_1)
-# print_score(y_test_1, predictions)
+# 13.voting_classify
+from sklearn.ensemble import GradientBoostingClassifier, VotingClassifier, RandomForestClassifier
+import xgboost
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+clf1 = GradientBoostingClassifier(n_estimators=200)
+clf2 = RandomForestClassifier(random_state=10, n_estimators=106, max_depth=31)
+# clf3 = LogisticRegression(random_state=1)
+clf4 = GaussianNB()
+# clf5 = xgboost.XGBClassifier()
+model = VotingClassifier(estimators=[
+    # ('gbdt',clf1),
+    ('rf',clf2),
+    # ('lr',clf3),
+    ('nb',clf4),
+    # ('xgboost',clf5),
+    ],
+    voting='soft',
+    n_jobs=-1)
+model.fit(x_data_train, y_data_train)
+fit_model(model, 'VotingClassifier')

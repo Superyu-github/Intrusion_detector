@@ -58,9 +58,9 @@ x_data_train, x_data_test, y_data_train, y_data_test = train_test_split(x_data, 
 # 将corrected分成两份，一份当作测试集调参，另一份当作“未知数据”用于展示最终效果
 x_test_1, x_test_2, y_test_1, y_test_2 = train_test_split(x_test, y_test, test_size=0.5, random_state=1)
 # 调参
-from xgboost import XGBClassifier   # 1.引入模型所在库
+from sklearn.svm import LinearSVC  # 1.引入模型所在库
 MIN = 5 # 2.参数最小值
-MAX = 10 # 3.参数最大值
+MAX = 15 # 3.参数最大值
 x = []
 accuracy_y = []
 precision_y = []
@@ -68,7 +68,7 @@ recall_y = []
 f1_y = []
 for i in range(MIN, MAX+1):
     print('Training...')
-    model = XGBClassifier(max_depth=3, subsample=0.8, colsample_bytree=0.8)   # 4.模型设置，i为被迭代的参数
+    model = LinearSVC(random_state=10, max_iter=i*200)   # 4.模型设置，i为被迭代的参数
     model.fit(x_data_train, y_data_train)
     print(i)
     predictions = model.predict(x_test_1)
