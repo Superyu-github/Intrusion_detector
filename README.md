@@ -1,0 +1,2 @@
+# Intrusion_detector
+基于kddcup数据集进行的网络攻击探测分析
